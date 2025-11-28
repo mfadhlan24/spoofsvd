@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Interaktif: Samsung S24 Ultra Spoofing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f5f5f4; color: #292524; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 250px;
+            margin: 0 auto;
+            height: 250px;
+        }
+        .step-transition { transition: all 0.3s ease-in-out; }
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #404040;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover { background-color: #525252; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #e7e5e4; }
+        ::-webkit-scrollbar-thumb { background: #a8a29e; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #78716c; }
+    </style>
+    <!-- Chosen Palette: Warm Stone & Tech Blue (Background: #f5f5f4, Text: #292524, Accent: #0284c7, Success: #059669) -->
+    <!-- Application Structure Plan: Dashboard Layout. Left sidebar (desktop) / Top bar (mobile) for Progress Tracking using Chart.js. Main content area allows sequential navigation through the 5 technical phases identified in the report. Content is broken down into interactive cards to prevent information overload. -->
+    <!-- Visualization & Content Choices: 
+         1. Guide Completion (Stats) -> Goal: Inform -> Doughnut Chart (Chart.js) -> Visualizes how much of the complex process is done.
+         2. Prerequisites -> Goal: Organize -> Interactive Checklist -> Users must check items to proceed.
+         3. Script Content -> Goal: Inform -> Syntax Highlighted Code Block -> Easy to read and copy.
+         4. Command Execution -> Goal: Change -> Interactive Command Runner Simulation -> Explains each Unix command (sed, chmod) contextually.
+         NO SVG used. NO Mermaid used. 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Sidebar / Navigation Panel -->
+    <aside class="w-full md:w-80 bg-stone-100 border-r border-stone-200 flex flex-col h-auto md:h-full shrink-0 z-20 shadow-lg">
+        <div class="p-6 border-b border-stone-200 bg-white">
+            <h1 class="text-xl font-bold text-stone-800">S24 Ultra Spoof</h1>
+            <p class="text-sm text-stone-500 mt-1">Interactive Manual</p>
+        </div>
+        
+        <!-- Progress Chart Area -->
+        <div class="p-6 flex flex-col items-center bg-stone-50">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-stone-400 mb-4 w-full text-center">Progress Langkah</h3>
+            <div class="chart-container">
+                <canvas id="progressChart"></canvas>
+            </div>
+            <p id="progressText" class="mt-4 text-2xl font-bold text-sky-600">0%</p>
+            <p class="text-xs text-stone-400">Selesai</p>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="flex-1 overflow-y-auto p-4 space-y-2 hidden md:block" id="desktopNav">
+            <!-- Populated by JS -->
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full relative bg-stone-50 overflow-hidden">
+        
+        <!-- Mobile Header (Visible only on small screens) -->
+        <div class="md:hidden bg-white p-4 border-b border-stone-200 flex justify-between items-center shadow-sm z-10">
+            <span class="font-bold text-stone-700" id="mobileStepTitle">Persiapan</span>
+            <span class="text-xs bg-sky-100 text-sky-700 px-2 py-1 rounded-full" id="mobileStepCount">1/6</span>
+        </div>
+
+        <!-- Content Scroll Area -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-10" id="contentArea">
+            <div class="max-w-4xl mx-auto pb-20">
+                
+                <!-- Dynamic Content Container -->
+                <div id="stepContainer" class="step-transition">
+                    <!-- Content injected by JS -->
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Sticky Footer Navigation -->
+        <div class="bg-white border-t border-stone-200 p-4 md:px-10 flex justify-between items-center shrink-0 z-30">
+            <button id="prevBtn" class="px-6 py-2 rounded-lg border border-stone-300 text-stone-600 hover:bg-stone-100 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                &larr; Sebelumnya
+            </button>
+            <button id="nextBtn" class="px-6 py-2 rounded-lg bg-sky-600 text-white font-semibold hover:bg-sky-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                Lanjut &rarr;
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // --- Data & State Management ---
+        const appState = {
+            currentStep: 0,
+            completedSteps: new Set(),
+            steps: [
+                {
+                    id: 'intro',
+                    title: 'Persiapan & Prasyarat',
+                    type: 'checklist',
+                    content: {
+                        heading: 'Persiapan Wajib',
+                        intro: 'Sebelum memulai proses spoofing menjadi Samsung S24 Ultra, sangat penting untuk memastikan lingkungan kerja Anda (Emulator dan File) sudah siap. Kegagalan pada tahap ini adalah penyebab utama bootloop.',
+                        items: [
+                            { id: 'req1', text: 'Emulator Android Studio sudah terinstall (Target: Google APIs disarankan).' },
+                            { id: 'req2', text: 'Folder "rootAVD" sudah diekstrak dan siap.' },
+                            { id: 'req3', text: 'Folder "platform-tools" (berisi adb.exe) sudah siap.' },
+                            { id: 'req4', text: 'Emulator dalam keadaan menyala di menu utama.' }
+                        ]
+                    }
+                },
+                {
+                    id: 'rooting',
+                    title: 'Bagian 1: Rooting',
+                    type: 'terminal',
+                    content: {
+                        heading: 'Rooting dengan rootAVD',
+                        intro: 'Langkah pertama adalah mendapatkan akses root menggunakan script rootAVD. Ini akan memodifikasi ramdisk emulator untuk menyuntikkan Magisk.',
+                        steps: [
+                            { text: 'Buka folder "rootAVD", ketik "cmd" di address bar, lalu Enter.', type: 'info' },
+                            { text: 'Ketik perintah berikut untuk melihat daftar AVD:', type: 'cmd', code: 'rootAVD.bat ListAllAVDs' },
+                            { text: 'Salin perintah yang muncul (Command: rootAVD.bat system-images...), tempel, dan Enter.', type: 'action' },
+                            { text: 'Pilih opsi "1" (Stable) saat diminta.', type: 'action' }
+                        ],
+                        note: 'Emulator akan mati sendiri setelah proses ini selesai.'
+                    }
+                },
+                {
+                    id: 'coldboot',
+                    title: 'Bagian 2: Cold Boot',
+                    type: 'warning',
+                    content: {
+                        heading: 'Cold Boot & Setup Magisk',
+                        intro: 'Ini adalah langkah PALING KRUSIAL. Tanpa Cold Boot, perubahan sistem (Root) tidak akan terbaca oleh emulator karena fitur Snapshot.',
+                        actions: [
+                            { title: '1. Buka Device Manager', desc: 'Di Android Studio, cari emulator Anda.' },
+                            { title: '2. Cold Boot Now', desc: 'Klik panah kecil > Pilih "Cold Boot Now".' },
+                            { title: '3. Setup Magisk', desc: 'Buka App Magisk > Klik OK (Setup) > Pilih Direct Install > Biarkan Reboot.' }
+                        ]
+                    }
+                },
+                {
+                    id: 'script',
+                    title: 'Bagian 3: Script Spoof',
+                    type: 'code',
+                    content: {
+                        heading: 'Membuat Script Identitas',
+                        intro: 'Kita perlu membuat file script shell (.sh) yang berisi perintah "resetprop". Perintah ini akan memanipulasi properti sistem agar terdeteksi sebagai Samsung S24 Ultra (SM-S928B).',
+                        filename: 'spoof_s24.sh',
+                        location: 'Simpan di dalam folder: platform-tools',
+                        code: `#!/system/bin/sh
+resetprop ro.product.brand "samsung"
+resetprop ro.product.manufacturer "samsung"
+resetprop ro.product.model "SM-S928B"
+resetprop ro.product.name "e3qxxx"
+resetprop ro.product.device "qssi_64"
+resetprop ro.build.product "qssi_64"
+FP="samsung/e3qxxx/qssi_64:15/AP3A.240905.015.A2/S928BXXU4ZXLJ:user/release-keys"
+resetprop ro.build.fingerprint "$FP"
+resetprop ro.system.build.fingerprint "$FP"
+resetprop ro.vendor.build.fingerprint "$FP"
+resetprop ro.build.id "AP3A.240905.015.A2"
+resetprop ro.build.version.release "15"
+resetprop ro.build.version.sdk "35"
+resetprop ro.build.version.security_patch "2025-01-01"
+resetprop ro.build.version.incremental "S928BXXU4ZXLJ"`
+                    }
+                },
+                {
+                    id: 'execution',
+                    title: 'Bagian 4: Eksekusi',
+                    type: 'interactive_cmd',
+                    content: {
+                        heading: 'Eksekusi Perintah ADB',
+                        intro: 'Jalankan perintah berikut satu per satu di CMD (folder platform-tools) saat emulator sudah menyala dan Magisk sudah siap.',
+                        commands: [
+                            { cmd: 'adb push spoof_s24.sh /data/local/tmp/spoof_s24.sh', desc: 'Mengupload file script dari PC ke folder sementara di Emulator.' },
+                            { cmd: 'adb shell su', desc: 'Masuk ke sistem emulator sebagai Root. PENTING: Klik "Grant/Izinkan" di layar Emulator!' },
+                            { cmd: 'sed -i \'s/\\r$//\' /data/local/tmp/spoof_s24.sh', desc: 'Mengubah format baris Windows (CRLF) menjadi Unix (LF) agar bisa dibaca Android.' },
+                            { cmd: 'cp /data/local/tmp/spoof_s24.sh /data/adb/post-fs-data.d/spoof_s24.sh', desc: 'Memindahkan script ke folder startup Magisk agar permanen.' },
+                            { cmd: 'chmod +x /data/adb/post-fs-data.d/spoof_s24.sh', desc: 'Memberikan izin "Execute" agar script bisa dijalankan oleh sistem.' },
+                            { cmd: 'reboot', desc: 'Merestart emulator untuk menerapkan perubahan.' }
+                        ]
+                    }
+                },
+                {
+                    id: 'verify',
+                    title: 'Bagian 5: Verifikasi',
+                    type: 'success',
+                    content: {
+                        heading: 'Cek Hasil Akhir',
+                        intro: 'Setelah emulator menyala kembali, lakukan verifikasi untuk memastikan identitas sudah berubah.',
+                        cmd: 'adb shell getprop ro.product.model',
+                        expected: 'SM-S928B',
+                        final_msg: 'Selamat! Emulator Anda sekarang terdeteksi sebagai Samsung S24 Ultra.'
+                    }
+                }
+            ]
+        };
+
+        // --- Chart Initialization ---
+        let progressChart;
+        function initChart() {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            progressChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Selesai', 'Belum'],
+                    datasets: [{
+                        data: [0, 100],
+                        backgroundColor: ['#0284c7', '#e7e5e4'],
+                        borderWidth: 0,
+                        cutout: '80%'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+        }
+
+        // --- Core Logic ---
+        function updateProgress() {
+            const percentage = Math.round(((appState.currentStep) / (appState.steps.length - 1)) * 100);
+            
+            // Update Text
+            document.getElementById('progressText').innerText = `${percentage}%`;
+            
+            // Update Chart
+            progressChart.data.datasets[0].data = [percentage, 100 - percentage];
+            progressChart.update();
+
+            // Enable/Disable Nav Buttons
+            document.getElementById('prevBtn').disabled = appState.currentStep === 0;
+            document.getElementById('nextBtn').disabled = appState.currentStep === appState.steps.length - 1;
+
+            // Render Desktop Nav
+            const navContainer = document.getElementById('desktopNav');
+            navContainer.innerHTML = '';
+            appState.steps.forEach((step, index) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3 ${
+                    index === appState.currentStep 
+                    ? 'bg-sky-100 text-sky-800 font-bold shadow-sm' 
+                    : 'text-stone-600 hover:bg-stone-200'
+                }`;
+                // Determine icon based on status
+                let icon = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-stone-200 text-xs font-mono text-stone-500">${index + 1}</span>`;
+                if (index < appState.currentStep) {
+                    icon = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-emerald-100 text-xs font-mono text-emerald-600">✓</span>`;
+                } else if (index === appState.currentStep) {
+                    icon = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-sky-500 text-xs font-mono text-white">${index + 1}</span>`;
+                }
+
+                btn.innerHTML = `${icon} <span>${step.title}</span>`;
+                btn.onclick = () => {
+                    appState.currentStep = index;
+                    renderStep();
+                };
+                navContainer.appendChild(btn);
+            });
+
+            // Update Mobile Header
+            document.getElementById('mobileStepTitle').innerText = appState.steps[appState.currentStep].title;
+            document.getElementById('mobileStepCount').innerText = `${appState.currentStep + 1}/${appState.steps.length}`;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Teks berhasil disalin!');
+            }).catch(err => {
+                console.error('Gagal menyalin: ', err);
+            });
+        }
+
+        function renderStep() {
+            const stepData = appState.steps[appState.currentStep];
+            const container = document.getElementById('stepContainer');
+            
+            // Clear current content with simple fade
+            container.style.opacity = '0';
+            
+            setTimeout(() => {
+                container.innerHTML = ''; // Clear html
+
+                // Base Container
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden';
+
+                // Header
+                const header = document.createElement('div');
+                header.className = 'p-6 md:p-8 border-b border-stone-100 bg-stone-50/50';
+                header.innerHTML = `
+                    <h2 class="text-2xl md:text-3xl font-bold text-stone-800 mb-2">${stepData.content.heading}</h2>
+                    <p class="text-stone-600 leading-relaxed">${stepData.content.intro}</p>
+                `;
+                card.appendChild(header);
+
+                // Body based on type
+                const body = document.createElement('div');
+                body.className = 'p-6 md:p-8';
+
+                if (stepData.type === 'checklist') {
+                    // TYPE: CHECKLIST
+                    body.innerHTML = `<div class="space-y-4"></div>`;
+                    const list = body.querySelector('div');
+                    stepData.content.items.forEach(item => {
+                        const row = document.createElement('label');
+                        row.className = 'flex items-start gap-4 p-4 border rounded-lg cursor-pointer hover:bg-stone-50 transition';
+                        row.innerHTML = `
+                            <input type="checkbox" class="w-5 h-5 mt-0.5 text-sky-600 rounded border-stone-300 focus:ring-sky-500">
+                            <span class="text-stone-700 font-medium">${item.text}</span>
+                        `;
+                        list.appendChild(row);
+                    });
+                } 
+                else if (stepData.type === 'terminal') {
+                    // TYPE: TERMINAL
+                    body.innerHTML = `<div class="space-y-6"></div>`;
+                    const list = body.querySelector('div');
+                    stepData.content.steps.forEach(s => {
+                        const row = document.createElement('div');
+                        if(s.type === 'cmd') {
+                            row.className = 'code-block font-mono text-sm group';
+                            row.innerHTML = `
+                                <span class="text-sky-400">C:\\rootAVD></span> ${s.code}
+                                <button class="copy-btn opacity-0 group-hover:opacity-100" onclick="copyToClipboard('${s.code}')">Copy</button>
+                            `;
+                        } else if (s.type === 'action') {
+                             row.className = 'flex items-center gap-3 text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-200';
+                             row.innerHTML = `<span class="text-xl">👉</span> <span>${s.text}</span>`;
+                        } else {
+                            row.className = 'text-stone-600';
+                            row.innerText = s.text;
+                        }
+                        list.appendChild(row);
+                    });
+                    const note = document.createElement('div');
+                    note.className = 'mt-4 text-xs text-stone-400 italic text-center';
+                    note.innerText = stepData.content.note;
+                    body.appendChild(note);
+                }
+                else if (stepData.type === 'warning') {
+                    // TYPE: COLD BOOT (WARNING)
+                    body.className = 'bg-red-50 p-8';
+                    const grid = document.createElement('div');
+                    grid.className = 'grid gap-6';
+                    stepData.content.actions.forEach(action => {
+                        const item = document.createElement('div');
+                        item.className = 'bg-white p-5 rounded-lg border-l-4 border-red-500 shadow-sm';
+                        item.innerHTML = `
+                            <h4 class="font-bold text-red-700 mb-1">${action.title}</h4>
+                            <p class="text-sm text-stone-600">${action.desc}</p>
+                        `;
+                        grid.appendChild(item);
+                    });
+                    body.appendChild(grid);
+                }
+                else if (stepData.type === 'code') {
+                    // TYPE: CODE EDITOR
+                    body.innerHTML = `
+                        <div class="mb-4 flex flex-col md:flex-row justify-between text-sm text-stone-500">
+                            <span>Nama File: <strong class="text-stone-800">${stepData.content.filename}</strong></span>
+                            <span>Lokasi: <strong class="text-stone-800">${stepData.content.location}</strong></span>
+                        </div>
+                        <div class="code-block mono text-xs md:text-sm leading-relaxed">
+                            <pre>${stepData.content.code}</pre>
+                            <button class="copy-btn" onclick="copyToClipboard(appState.steps[3].content.code)">Copy All</button>
+                        </div>
+                        <div class="mt-4 p-4 bg-sky-50 text-sky-800 text-sm rounded-lg border border-sky-100">
+                            <strong>Tips:</strong> Gunakan Notepad, lalu pilih "Save As Type: All Files" agar tidak tersimpan sebagai .txt.
+                        </div>
+                    `;
+                }
+                else if (stepData.type === 'interactive_cmd') {
+                    // TYPE: INTERACTIVE COMMANDS
+                    body.innerHTML = `<div class="space-y-2"></div>`;
+                    const list = body.querySelector('div');
+                    stepData.content.commands.forEach((c, i) => {
+                        const item = document.createElement('div');
+                        item.className = 'border border-stone-200 rounded-lg overflow-hidden transition hover:border-sky-300 hover:shadow-md';
+                        item.innerHTML = `
+                            <div class="bg-stone-800 text-stone-200 p-3 font-mono text-sm flex justify-between items-center cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                                <span><span class="text-green-400">$</span> ${c.cmd}</span>
+                                <span class="text-xs text-stone-500">Info ▼</span>
+                            </div>
+                            <div class="bg-stone-50 p-3 text-sm text-stone-600 border-t border-stone-200 hidden">
+                                ${c.desc}
+                                <button class="ml-2 text-sky-600 text-xs font-bold underline" onclick="copyToClipboard('${c.cmd.replace(/'/g, "\\'")}')">Copy Command</button>
+                            </div>
+                        `;
+                        list.appendChild(item);
+                    });
+                }
+                else if (stepData.type === 'success') {
+                    // TYPE: SUCCESS
+                    body.className = 'p-8 flex flex-col items-center justify-center text-center';
+                    body.innerHTML = `
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                            <span class="text-4xl">🎉</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-green-700 mb-2">Proses Selesai!</h3>
+                        <p class="text-stone-600 mb-6">${stepData.content.final_msg}</p>
+                        <div class="code-block w-full max-w-md text-left">
+                            <span class="text-sky-400">C:\\platform-tools></span> ${stepData.content.cmd} <br>
+                            <span class="text-green-400">${stepData.content.expected}</span>
+                        </div>
+                    `;
+                }
+
+                card.appendChild(body);
+                container.appendChild(card);
+                
+                // Fade in
+                requestAnimationFrame(() => {
+                    container.style.opacity = '1';
+                });
+                
+                updateProgress();
+
+            }, 300);
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (appState.currentStep < appState.steps.length - 1) {
+                appState.currentStep++;
+                renderStep();
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (appState.currentStep > 0) {
+                appState.currentStep--;
+                renderStep();
+            }
+        });
+
+        // Initialize
+        window.onload = () => {
+            initChart();
+            renderStep();
+        };
+
+    </script>
+</body>
+</html>
